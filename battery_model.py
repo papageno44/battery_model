@@ -45,7 +45,7 @@ while step < int(final_time/time_step):
     soc = rescale_soc(soc_0 - discharge_capacity/param['Nominal cell capacity [A.h]'])
     voltage = round(solution['Voltage [V]'].entries[n],2)
     current = solution['Current [A]'].entries[n]
-    print('Time:', time,'SoC:', round(soc,2), 'Current:',round(current,2),'Voltage:', voltage,'Discharge capacity:',round(discharge_capacity,2))
+    print('Time:', time,'SoC:', round(soc,2), 'Current:',round(current,2),'Voltage:', voltage)
     if voltage == param['Upper voltage cut-off [V]']:
         print('Upper cut-off voltage of', param['Upper voltage cut-off [V]'], '[V] was reached!')
         break
