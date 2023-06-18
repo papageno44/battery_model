@@ -34,13 +34,11 @@ i = [random.randint(-3, 3) for _ in range(max_step)]  # random generation of cur
 sim = pybamm.Simulation(model, parameter_values=param)
 sim.build(check_model=True, initial_soc=soc_0)
 step = 0  # initializing step with 0
-step = 0
 while step < int(final_time/time_step):
     sim.step(dt=time_step,npts = 2, save=True, inputs={'Current function [A]': i[step]})
     solution = sim.solution
     n = len(solution["Time [s]"].entries)-1
     time = solution["Time [s]"].entries[n]
-    current = solution['Current [A]'].entries[n]
     discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
     soc = rescale_soc(soc_0 - discharge_capacity/param['Nominal cell capacity [A.h]'])
     voltage = round(solution['Voltage [V]'].entries[n],2)
