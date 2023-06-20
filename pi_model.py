@@ -1,4 +1,6 @@
 import pybamm
+import time
+from pyModbusTCP.server import ModbusServer
 
 
 # Turn on the battery
@@ -54,3 +56,4 @@ while switch:
     current = server.data_bank.get_holding_registers(0)[0]
     switch = server.data_bank.get_coils(0)[0]
     time_step(server, current, sim, param)
+    time.sleep(1)
