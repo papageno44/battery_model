@@ -58,7 +58,7 @@ def write_current_variables(server, soc, voltage, time):
     server.data_bank.set_holding_registers(3, [time])
 
 
-server = turn_on_battery(server='172.25.111.167')
+server = turn_on_battery(server='192.168.178.105')
 switch = False
 while not switch:
     switch = server.data_bank.get_coils(0)[0]
