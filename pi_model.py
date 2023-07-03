@@ -37,8 +37,6 @@ def reverse_rescale_soc(wanted_soc, min_soc, max_soc):
 
 def time_step(server, current, sim, param):
     initial_soc = float(server.data_bank.get_holding_registers(4)[0])
-    initial_soc = reverse_rescale_soc(initial_soc, -0.023, 0.933) / 100
-    print('initial_soc', initial_soc)
     time_step = server.data_bank.get_holding_registers(5)[0]
     sim.step(dt=time_step, npts=2, save=True, inputs={'Current function [A]': current})
     solution = sim.solution

@@ -2,9 +2,9 @@ from pyModbusTCP.client import ModbusClient
 import time
 import pandas as pd
 import threading
+from datetime import datetime
 
-
-def connect_to_battery(server_ip='192.168.178.102', port=12345):
+def connect_to_battery(server_ip='192.168.178.105', port=12345):
     client = ModbusClient(server_ip, port)
     while True:
         print('Connecting to the battery...')
@@ -60,9 +60,9 @@ class KeyboardThread(threading.Thread):
 def my_callback(inp):
     global PRESSED_KEY
     PRESSED_KEY = inp
-    if PRESSED_KEY.isdigit():
+    if PRESSED_KEY.lstrip('-').isdigit():
         PRESSED_KEY = float(PRESSED_KEY)
-        print('pressed key is a digit!')
+        print('Pressed key is a number!')
     print('You Entered:', inp, )
 
 
@@ -103,7 +103,7 @@ def read_variables(client):
     TIME_LIST.append(time)
 
 
-client = connect_to_battery(server_ip='172.25.111.167')
+client = connect_to_battery(server_ip='192.168.178.105')
 start_simulation(client)
 RUN_SIM = 1
 CURRENT_LIST = []
@@ -122,3 +122,6 @@ while RUN_SIM:
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
 print('time list; : ', TIME_LIST)
 print('output_df', output_df)
+save = input('Do you want to save the simulation? [y/n]')
+if save == 'y':
+    output_df.to_csv('/simulations/'+datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
