@@ -4,7 +4,7 @@ from pyModbusTCP.server import ModbusServer
 
 
 # Turn on the battery
-def turn_on_battery(server='192.168.178.102', port=12345):
+def turn_on_battery(server='192.168.178.105', port=12345):
     server = ModbusServer(server, port=port, no_block=True)
     print("Battery is on")
     server.start()
