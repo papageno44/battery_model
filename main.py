@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import threading
 from datetime import datetime
+from matplotlib import pyplot as plt
 
 def connect_to_battery(server_ip='192.168.178.105', port=12345):
     client = ModbusClient(server_ip, port)
@@ -83,13 +84,30 @@ def forward_input_to_battery():
         if isinstance(PRESSED_KEY, float):
             input_current = int(round(PRESSED_KEY * 100, 2))
             print('current changed to', PRESSED_KEY)
-            client.write_single_register(0, input_current)
+            client.write_single_register(0, abs(input_current))
+            if input_current < 0:
+                client.write_single_coil(1, True)
+            else:
+                client.write_single_coil(1, False)
             PRESSED_KEY = None
+        else:
+            print('Incorrect input!')
 
 
 def read_variables(client):
     current = client.read_holding_registers(0)[0] / 100
+    current_sign = client.read_coils(0)[0]
+    if current_sign:
+        current = -current
     voltage = client.read_holding_registers(1)[0] / 10
+    max_voltage = client.read_coils(2)[0]
+    if max_voltage:
+        print('Max voltage was reached! Changing current to 0')
+        current = 0
+    min_voltage = client.read_coils(3)[0]
+    if min_voltage:
+        print('Min voltage was reached! Changing current to 0')
+        current = 0
     soc = client.read_holding_registers(2)[0] / 100
     time = client.read_holding_registers(3)[0]
     print('current: ', current, 'voltage: ', voltage, 'soc: ', soc, 'time: ', time)
@@ -122,6 +140,15 @@ while RUN_SIM:
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
 print('time list; : ', TIME_LIST)
 print('output_df', output_df)
+fig, axes = plt.subplots(nrows = 3, cols=1, sharex=True)
+axes[0].plot(output_df['Time'],output_df['Current'])
+axes[0].set_ylabel('Current')
+axes[1].plot(output_df['Time'],output_df['Voltage'])
+axes[1].set_ylabel('Voltage')
+axes[2].plot(output_df['Time'],output_df['SoC'])
+axes[2].set_ylabel('State of Charge')
+plt.tight_layout()
+plt.show()
 save = input('Do you want to save the simulation? [y/n]')
 if save == 'y':
-    output_df.to_csv('/simulations/'+datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+    output_df.to_csv('/simulations/' + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
