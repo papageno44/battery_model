@@ -53,14 +53,14 @@ def time_step(server, current, sim, param):
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
     if voltage >= 4.2*10:
         print('Max voltage voltage was reached!')
-        server.data_bank.set_coils(2, [True])[0]
+        server.data_bank.set_coils(2, [True])
     else:
-        server.data_bank.set_coils(2, [False])[0]
+        server.data_bank.set_coils(2, [False])
     if voltage <= 2.5*10:
         print('Min voltage voltage was reached!')
-        server.data_bank.set_coils(3, [True])[0]
+        server.data_bank.set_coils(3, [True])
     else:
-        server.data_bank.set_coils(3, [False])[0]
+        server.data_bank.set_coils(3, [False])
     write_current_variables(server, soc, voltage, time)
 
 
