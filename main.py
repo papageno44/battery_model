@@ -64,7 +64,7 @@ def my_callback(inp):
     if PRESSED_KEY.lstrip('-').isdigit():
         PRESSED_KEY = float(PRESSED_KEY)
         print('Pressed key is a number!')
-    print('You Entered:', inp, )
+    print('You Entered:', inp)
 
 
 # def check_input():
@@ -90,8 +90,6 @@ def forward_input_to_battery():
             else:
                 client.write_single_coil(1, False)
             PRESSED_KEY = None
-        else:
-            print('Incorrect input!')
 
 
 def read_variables(client):
