@@ -98,7 +98,7 @@ def read_variables(client):
     if current_sign:
         current = -current
     voltage = client.read_holding_registers(1)[0] / 10
-    max_voltage = client.read_coils(1)[0]
+    max_voltage = client.read_coils(2)[0]
     if max_voltage:
         print('Max voltage was reached! Changing current to 0')
         current = 0
