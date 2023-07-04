@@ -94,11 +94,11 @@ def forward_input_to_battery():
 
 def read_variables(client):
     current = client.read_holding_registers(0)[0] / 100
-    current_sign = client.read_coils(0)[0]
+    current_sign = client.read_coils(2)[0]
     if current_sign:
         current = -current
     voltage = client.read_holding_registers(1)[0] / 10
-    max_voltage = client.read_coils(2)[0]
+    max_voltage = client.read_coils(1)[0]
     if max_voltage:
         print('Max voltage was reached! Changing current to 0')
         current = 0
