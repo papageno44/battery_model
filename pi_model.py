@@ -73,7 +73,7 @@ def write_current_variables(server, soc, voltage, time):
 server = turn_on_battery(server='192.168.178.105')
 switch = False
 repeat = True
-while repeat
+while repeat:
     while not switch:
         switch = server.data_bank.get_coils(0)[0]
     init = initialize_simulation(server)
