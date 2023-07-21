@@ -48,7 +48,7 @@ def time_step(server, current, sim, param):
     time = solution["Time [s]"].entries[n]
     discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
     soc = initial_soc - discharge_capacity / param['Nominal cell capacity [A.h]']
-    soc = rescale_soc(soc, -0.02332, 0.9773) * 100
+    #soc = rescale_soc(soc, -0.02332, 0.9773) * 100
     soc = int(round(soc, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
     if voltage >= 4.2*10:
