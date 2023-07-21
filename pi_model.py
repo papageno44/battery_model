@@ -46,7 +46,7 @@ def time_step(server, current, sim, param):
     solution = sim.solution
     n = len(solution["Time [s]"].entries) - 1
     time = solution["Time [s]"].entries[n]
-    discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
+    discharge_capacity = solution['Discharge capacity [A.h]'].entries[n+1]
     soc = initial_soc - discharge_capacity / param['Nominal cell capacity [A.h]']
     soc = rescale_soc(soc, -0.02332, 0.9773) * 100
     soc = int(round(soc, 0))
