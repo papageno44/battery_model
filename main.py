@@ -138,7 +138,7 @@ while RUN_SIM:
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
 print('time list; : ', TIME_LIST)
 print('output_df', output_df)
-fig, axes = plt.subplots(nrows = 3, cols=1, sharex=True)
+fig, axes = plt.subplots(nrows = 3, ncols=1, sharex=True)
 axes[0].plot(output_df['Time'],output_df['Current'])
 axes[0].set_ylabel('Current')
 axes[1].plot(output_df['Time'],output_df['Voltage'])
