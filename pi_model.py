@@ -35,7 +35,7 @@ def reverse_rescale_soc(wanted_soc, min_soc, max_soc):
     return calculated_soc
 
 
-def time_step(server, current, sim, param, current_sign):
+def time_step(server, current, sim, param):
     initial_soc = float(server.data_bank.get_holding_registers(4)[0]) / 100
     time_step = server.data_bank.get_holding_registers(5)[0]
     if server.data_bank.get_coils(2)[0]:
@@ -88,5 +88,5 @@ while repeat:
         print('Current:', current)
         switch = server.data_bank.get_coils(0)[0]
         time_step(server, current, sim, param)
-        time.sleep(1.5)
+        time.sleep(1)
     print('The simulation was stopped.')
