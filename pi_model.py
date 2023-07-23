@@ -52,15 +52,15 @@ def time_step(server, current, sim, param):
     discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
     print('Discharge capacity:', discharge_capacity)
     soc = initial_soc - discharge_capacity / param['Nominal cell capacity [A.h]']
-    #soc = rescale_soc(soc, -0.02332, 0.9773)
+    soc = rescale_soc(soc, -0.02332, 0.9773)
     soc = int(round(soc * 100, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
-    if voltage >= 4.2 * 10:
+    if voltage >= (4.2 * 10)*0.95:
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
     else:
         server.data_bank.set_coils(2, [False])
-    if voltage <= 2.5 * 10:
+    if voltage <= (2.5 * 10)*0.95:
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
     else:
