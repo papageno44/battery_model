@@ -30,6 +30,9 @@ def start_simulation(client, initial_soc=0.5, dt=1):
         initial_soc = int(float(initial_soc) * 100)
 
         dt = int(input('Input time step in [s]'))
+        capacity = float(input('Input capacity of the battery [Ah]'))
+        required_width = int(round(capacity*1.58/5,2)*100)
+        client.write_single_register(6, required_width)
         client.write_single_coil(0, True)  ## On/Off coil
         global RUN_SIM
         RUN_SIM = True
@@ -38,11 +41,6 @@ def start_simulation(client, initial_soc=0.5, dt=1):
         switch = 1
     return print('Successfully started the simulation')
 
-
-# def keyboard_input_start():
-#     input_thread = threading.Thread(target=check_input())
-#     input_thread.daemon = True
-#     input_thread.start()
 
 
 class KeyboardThread(threading.Thread):
@@ -53,7 +51,7 @@ class KeyboardThread(threading.Thread):
         self.start()
 
     def run(self):
-        while True:
+        while RUN_SIM == 1:
             self.input_cbk(input(
                 'Type a number to change input current in [A]. Type [q] to stop the simulation'))  # waits to get input + Return
 
@@ -65,14 +63,6 @@ def my_callback(inp):
         PRESSED_KEY = float(PRESSED_KEY)
         print('Pressed key is a number!')
     print('You Entered:', inp)
-
-
-# def check_input():
-#     global PRESSED_KEY
-#     while PRESSED_KEY is None:
-#         PRESSED_KEY = input('Type a number to change input current in [A]. Type [q] to stop the simulation')
-#         if PRESSED_KEY.isdigit():
-#             PRESSED_KEY = float(PRESSED_KEY)
 
 
 def forward_input_to_battery():
@@ -93,21 +83,23 @@ def forward_input_to_battery():
 
 
 def read_variables(client):
+    time = client.read_holding_registers(3)[0]
+    if time == 0:
+        return
     current = client.read_holding_registers(0)[0] / 100
-    current_sign = client.read_coils(2)[0]
+    current_sign = client.read_coils(1)[0]
     if current_sign:
         current = -current
     voltage = client.read_holding_registers(1)[0] / 10
     max_voltage = client.read_coils(2)[0]
-    if max_voltage:
+    if max_voltage and current_sign == 1:
         print('Max voltage was reached! Changing current to 0')
         current = 0
     min_voltage = client.read_coils(3)[0]
-    if min_voltage:
+    if min_voltage and current_sign == 0:
         print('Min voltage was reached! Changing current to 0')
         current = 0
     soc = client.read_holding_registers(2)[0] / 100
-    time = client.read_holding_registers(3)[0]
     print('current: ', current, 'voltage: ', voltage, 'soc: ', soc, 'time: ', time)
     soc_0 = client.read_holding_registers(4)[0] / 100
     time_step = client.read_holding_registers(5)[0]
@@ -132,8 +124,9 @@ PRESSED_KEY = None
 kthread = KeyboardThread(my_callback)
 while RUN_SIM:
     forward_input_to_battery()
-    read_variables(client)
     time.sleep(1)
+    read_variables(client)
+
 
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
 print('time list; : ', TIME_LIST)
@@ -147,6 +140,5 @@ axes[2].plot(output_df['Time'],output_df['SoC'])
 axes[2].set_ylabel('State of Charge')
 plt.tight_layout()
 plt.show()
-save = input('Do you want to save the simulation? [y/n]')
-if save == 'y':
-    output_df.to_csv('/simulations/' + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+#save = input('Do you want to save the simulation? [y/n]')
+output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H:%M:%S")+'.csv'))
