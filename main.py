@@ -83,6 +83,7 @@ def forward_input_to_battery():
 
 
 def read_variables(client):
+    global RUN_SIM, CURRENT_LIST, VOLTAGE_LIST, SOC_LIST, TIME_LIST, PRESSED_KEY
     time = client.read_holding_registers(3)[0]
     if time == 0:
         return
@@ -95,15 +96,15 @@ def read_variables(client):
     if max_voltage and current_sign == 1:
         print('Max voltage was reached! Changing current to 0')
         current = 0
+        client.write_single_register(0, 0)
     min_voltage = client.read_coils(3)[0]
     if min_voltage and current_sign == 0:
         print('Min voltage was reached! Changing current to 0')
-        current = 0
+        client.write_single_register(0, 0)
     soc = client.read_holding_registers(2)[0] / 100
     print('current: ', current, 'voltage: ', voltage, 'soc: ', soc, 'time: ', time)
     soc_0 = client.read_holding_registers(4)[0] / 100
     time_step = client.read_holding_registers(5)[0]
-    global RUN_SIM, CURRENT_LIST, VOLTAGE_LIST, SOC_LIST, TIME_LIST
     RUN_SIM = client.read_coils(0)[0]
     CURRENT_LIST.append(current)
     VOLTAGE_LIST.append(voltage)
@@ -141,4 +142,4 @@ axes[2].set_ylabel('State of Charge')
 plt.tight_layout()
 plt.show()
 #save = input('Do you want to save the simulation? [y/n]')
-output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H:%M:%S")+'.csv'))
+output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S")+'.csv'))
