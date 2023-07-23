@@ -31,12 +31,12 @@ def rescale_soc(calculated_soc, min_soc, max_soc):
 
 
 def reverse_rescale_soc(wanted_soc, min_soc, max_soc):
-    calculated_soc = wanted_soc*(max_soc - min_soc) + min_soc
+    calculated_soc = wanted_soc * (max_soc - min_soc) + min_soc
     return calculated_soc
 
 
-def time_step(server, current, sim, param):
-    initial_soc = float(server.data_bank.get_holding_registers(4)[0])/100
+def time_step(server, current, sim, param, current_sign):
+    initial_soc = float(server.data_bank.get_holding_registers(4)[0]) / 100
     time_step = server.data_bank.get_holding_registers(5)[0]
     if server.data_bank.get_coils(2)[0]:
         current = 0
@@ -47,17 +47,17 @@ def time_step(server, current, sim, param):
     n = len(solution["Time [s]"].entries) - 1
     time = solution["Time [s]"].entries[n]
     discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
-    print('Discharge capacity:',discharge_capacity)
+    print('Discharge capacity:', discharge_capacity)
     soc = initial_soc - discharge_capacity / param['Nominal cell capacity [A.h]']
-    #soc = rescale_soc(soc, -0.02332, 0.9773)
-    soc = int(round(soc*100, 0))
+    # soc = rescale_soc(soc, -0.02332, 0.9773)
+    soc = int(round(soc * 100, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
-    if voltage >= 4.2*10:
+    if (voltage >= 4.2 * 10) & (current_sign == 1):
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
     else:
         server.data_bank.set_coils(2, [False])
-    if voltage <= 2.5*10:
+    if (voltage <= 2.5 * 10) & (current_sign == 1):
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
     else:
@@ -87,6 +87,6 @@ while repeat:
             current = -current
         print('Current:', current)
         switch = server.data_bank.get_coils(0)[0]
-        time_step(server, current, sim, param)
-        time.sleep(1)
+        time_step(server, current, sim, param, current_sign)
+        time.sleep(1.5)
     print('The simulation was stopped.')
