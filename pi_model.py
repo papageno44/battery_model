@@ -52,12 +52,12 @@ def time_step(server, current, sim, param, current_sign):
     # soc = rescale_soc(soc, -0.02332, 0.9773)
     soc = int(round(soc * 100, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
-    if (voltage >= 4.2 * 10) & (current_sign == 1):
+    if (voltage >= 4.2 * 10) and (current < 0):
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
     else:
         server.data_bank.set_coils(2, [False])
-    if (voltage <= 2.5 * 10) & (current_sign == 1):
+    if (voltage <= 2.5 * 10) and (current > 0):
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
     else:
@@ -87,6 +87,6 @@ while repeat:
             current = -current
         print('Current:', current)
         switch = server.data_bank.get_coils(0)[0]
-        time_step(server, current, sim, param, current_sign)
+        time_step(server, current, sim, param)
         time.sleep(1.5)
     print('The simulation was stopped.')
