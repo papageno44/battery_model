@@ -19,6 +19,7 @@ def initialize_simulation(server):
     param = pybamm.ParameterValues("Chen2020")
     initial_soc = float(server.data_bank.get_holding_registers(4)[0]) / 100
     param["Current function [A]"] = "[input]"
+    param["Electrode width [m]"] = float(server.data_bank.get_holding_registers(6)[0]) / 100
     sim = pybamm.Simulation(model, parameter_values=param)
     sim.build(check_model=True, initial_soc=initial_soc)
     print('Successfully initialized the simulation!')
