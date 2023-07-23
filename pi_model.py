@@ -60,7 +60,7 @@ def time_step(server, current, sim, param):
         server.data_bank.set_coils(2, [True])
     else:
         server.data_bank.set_coils(2, [False])
-    if voltage <= (2.5 * 10)*0.95:
+    if voltage <= (2.5 * 10)*1.05:
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
     else:
