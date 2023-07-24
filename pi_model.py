@@ -39,7 +39,7 @@ def reverse_rescale_soc(wanted_soc, min_soc, max_soc):
 
 def time_step(server, current, sim, param):
     initial_soc = float(server.data_bank.get_holding_registers(4)[0]) / 100
-    initial_soc = reverse_rescale_soc(initial_soc, -0.02332, 0.96)
+    initial_soc = reverse_rescale_soc(initial_soc, -0.02332, 0.9773)
     time_step = server.data_bank.get_holding_registers(5)[0]
     if server.data_bank.get_coils(2)[0]:
         current = 0
@@ -52,11 +52,11 @@ def time_step(server, current, sim, param):
     discharge_capacity = solution['Discharge capacity [A.h]'].entries[n]
     print('Discharge capacity:', discharge_capacity)
     soc = initial_soc - discharge_capacity / param['Nominal cell capacity [A.h]']
-    soc = rescale_soc(soc, -0.02332, 0.96)
+    soc = rescale_soc(soc, -0.02332, 0.9733)
     soc = int(round(soc * 100, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
     current_sign = server.data_bank.get_coils(1)[0]
-    if soc >= 96 and current_sign:
+    if soc >= 98 and current_sign:
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
     else:
