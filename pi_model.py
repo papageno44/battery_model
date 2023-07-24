@@ -55,12 +55,13 @@ def time_step(server, current, sim, param):
     soc = rescale_soc(soc, -0.02332, 0.9773)
     soc = int(round(soc * 100, 0))
     voltage = int(round(solution['Voltage [V]'].entries[n], 1) * 10)
-    if soc >= 99:
+    current_sign = server.data_bank.get_coils(1)[0]
+    if soc >= 99 and current_sign:
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
     else:
         server.data_bank.set_coils(2, [False])
-    if soc <= 1:
+    if soc <= 1 and (current_sign == False):
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
     else:
