@@ -78,20 +78,19 @@ server = turn_on_battery(server='192.168.178.105')
 switch = False
 repeat = True
 old_time = 0
-while repeat:
-    while not switch:
-        switch = server.data_bank.get_coils(0)[0]
-    init = initialize_simulation(server)
-    sim = init[0]
-    param = init[1]
-    while switch:
-        current = server.data_bank.get_holding_registers(0)[0] / 100
-        current_sign = server.data_bank.get_coils(1)[0]
-        if current_sign:
-            current = -current
-        print('Current:', current)
-        switch = server.data_bank.get_coils(0)[0]
-        time_step(server, current, sim, param)
-        server.data_bank.set_coils(4, [True])
-        time.sleep(1)
-    print('The simulation was stopped.')
+while not switch:
+    switch = server.data_bank.get_coils(0)[0]
+init = initialize_simulation(server)
+sim = init[0]
+param = init[1]
+while switch:
+    current = server.data_bank.get_holding_registers(0)[0] / 100
+    current_sign = server.data_bank.get_coils(1)[0]
+    if current_sign:
+        current = -current
+    print('Current:', current)
+    switch = server.data_bank.get_coils(0)[0]
+    time_step(server, current, sim, param)
+    server.data_bank.set_coils(4, [True])
+    time.sleep(1)
+print('The simulation was stopped.')
