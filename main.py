@@ -124,9 +124,11 @@ PRESSED_KEY = None
 # start the Keyboard thread
 kthread = KeyboardThread(my_callback)
 while RUN_SIM:
-    forward_input_to_battery()
-    time.sleep(1)
-    read_variables(client)
+    if client.read_coils(4)[0]:
+        forward_input_to_battery()
+        read_variables(client)
+        client.write_single_coil(4, False)
+
 
 
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
@@ -140,6 +142,7 @@ axes[1].set_ylabel('Voltage')
 axes[2].plot(output_df['Time'],output_df['SoC'])
 axes[2].set_ylabel('State of Charge')
 plt.tight_layout()
+plt.savefig(str('./figures/fig_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S")+'.png'))
 plt.show()
 #save = input('Do you want to save the simulation? [y/n]')
 output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S")+'.csv'))
