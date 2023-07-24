@@ -92,5 +92,5 @@ while repeat:
         print('Current:', current)
         switch = server.data_bank.get_coils(0)[0]
         time_step(server, current, sim, param)
-        time.sleep(1)
+        time.sleep(0.8)
     print('The simulation was stopped.')
