@@ -4,7 +4,7 @@ from pyModbusTCP.server import ModbusServer
 
 
 # Turn on the battery
-def turn_on_battery(server='192.168.178.105', port=12345):
+def turn_on_battery(server='10.152.14.210', port=12345):
     server = ModbusServer(server, port=port, no_block=True)
     print("Battery is on")
     server.start()
@@ -75,7 +75,7 @@ def write_current_variables(server, soc, voltage, time):
     server.data_bank.set_holding_registers(3, [time])
 
 
-server = turn_on_battery(server='192.168.178.105')
+server = turn_on_battery(server='10.152.14.210')
 switch = False
 repeat = True
 old_time = 0
