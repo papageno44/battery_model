@@ -6,7 +6,7 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 
-SEVER_IP='192.168.178.105'
+SERVER_IP='192.168.178.105'
 
 
 def connect_to_battery(server_ip, port=12345):
@@ -43,7 +43,7 @@ def start_simulation(client, initial_soc=0.5, dt=1):
         client.write_single_register(4, initial_soc)
         client.write_single_register(5, dt)
         switch = 1
-    return print('Successfully started the simulation')
+    return print('Starting simulation...')
 
 
 class KeyboardThread(threading.Thread):
@@ -70,10 +70,10 @@ def isfloat(s):
 def my_callback(inp):
     global PRESSED_KEY
     PRESSED_KEY = inp
-    if '.' in PRESSED_KEY:
-        integer_part, fractional_part = PRESSED_KEY.split('.')
-        PRESSED_KEY = float(integer_part)
-    if isfloat(PRESSED_KEY.lstrip('-')):
+    # if '.' in PRESSED_KEY:
+    #     integer_part, fractional_part = PRESSED_KEY.split('.')
+    #     PRESSED_KEY = float(integer_part)
+    if isfloat(PRESSED_KEY):
         PRESSED_KEY = float(PRESSED_KEY)
         print('Pressed key is a number!')
     print('You Entered:', inp)
@@ -105,7 +105,7 @@ def read_variables(client):
     current_sign = client.read_coils(1)[0]
     if current_sign:
         current = -current
-    voltage = client.read_holding_registers(1)[0] / 10
+    voltage = client.read_holding_registers(1)[0] / 100
     max_voltage = client.read_coils(2)[0]
     if max_voltage and current_sign == 1:
         print('Max voltage was reached! Changing current to 0')
@@ -116,7 +116,8 @@ def read_variables(client):
         print('Min voltage was reached! Changing current to 0')
         client.write_single_register(0, 0)
     soc = client.read_holding_registers(2)[0] / 100
-    print('current: ', current, 'voltage: ', voltage, 'soc: ', soc, 'time: ', time)
+    print('current: ', current, '\nvoltage: ', voltage, '\nsoc: ', soc, '\ntime: ', time,
+          '\n---------------')
     soc_0 = client.read_holding_registers(4)[0] / 100
     time_step = client.read_holding_registers(5)[0]
     RUN_SIM = client.read_coils(0)[0]
@@ -144,8 +145,8 @@ while RUN_SIM:
         client.write_single_coil(4, False)
 
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
-print('time list; : ', TIME_LIST)
-print('output_df', output_df)
+# print('time list; : ', TIME_LIST)
+# print('output_df', output_df)
 fig, axes = plt.subplots(nrows=3, ncols=1, sharex=True)
 axes[0].plot(output_df['Time'], output_df['Current'])
 axes[0].set_ylabel('Current')
@@ -156,5 +157,4 @@ axes[2].set_ylabel('State of Charge')
 plt.tight_layout()
 plt.savefig(str('./figures/fig_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S") + '.png'))
 plt.show()
-# save = input('Do you want to save the simulation? [y/n]')
 output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S") + '.csv'))
