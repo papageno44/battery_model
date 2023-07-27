@@ -5,7 +5,11 @@ import threading
 from datetime import datetime
 from matplotlib import pyplot as plt
 
-def connect_to_battery(server_ip='192.168.178.105', port=12345):
+
+SEVER_IP='192.168.178.105'
+
+
+def connect_to_battery(server_ip, port=12345):
     client = ModbusClient(server_ip, port)
     while True:
         print('Connecting to the battery...')
@@ -31,7 +35,7 @@ def start_simulation(client, initial_soc=0.5, dt=1):
 
         dt = int(input('Input time step in [s]'))
         capacity = float(input('Input capacity of the battery [Ah]'))
-        required_width = int(round(capacity*1.58/5,2)*100)
+        required_width = int(round(capacity * 1.58 / 5, 2) * 100)
         client.write_single_register(6, required_width)
         client.write_single_coil(0, True)  ## On/Off coil
         global RUN_SIM
@@ -40,7 +44,6 @@ def start_simulation(client, initial_soc=0.5, dt=1):
         client.write_single_register(5, dt)
         switch = 1
     return print('Successfully started the simulation')
-
 
 
 class KeyboardThread(threading.Thread):
@@ -56,10 +59,21 @@ class KeyboardThread(threading.Thread):
                 'Type a number to change input current in [A]. Type [q] to stop the simulation'))  # waits to get input + Return
 
 
+def isfloat(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
 def my_callback(inp):
     global PRESSED_KEY
     PRESSED_KEY = inp
-    if PRESSED_KEY.lstrip('-').isdigit():
+    if '.' in PRESSED_KEY:
+        integer_part, fractional_part = PRESSED_KEY.split('.')
+        PRESSED_KEY = float(integer_part)
+    if isfloat(PRESSED_KEY.lstrip('-')):
         PRESSED_KEY = float(PRESSED_KEY)
         print('Pressed key is a number!')
     print('You Entered:', inp)
@@ -112,7 +126,7 @@ def read_variables(client):
     TIME_LIST.append(time)
 
 
-client = connect_to_battery(server_ip='192.168.178.105')
+client = connect_to_battery(SERVER_IP)
 start_simulation(client)
 RUN_SIM = 1
 CURRENT_LIST = []
@@ -129,20 +143,18 @@ while RUN_SIM:
         read_variables(client)
         client.write_single_coil(4, False)
 
-
-
 output_df = pd.DataFrame(data=dict(Time=TIME_LIST, Current=CURRENT_LIST, Voltage=VOLTAGE_LIST, SoC=SOC_LIST))
 print('time list; : ', TIME_LIST)
 print('output_df', output_df)
-fig, axes = plt.subplots(nrows = 3, ncols=1, sharex=True)
-axes[0].plot(output_df['Time'],output_df['Current'])
+fig, axes = plt.subplots(nrows=3, ncols=1, sharex=True)
+axes[0].plot(output_df['Time'], output_df['Current'])
 axes[0].set_ylabel('Current')
-axes[1].plot(output_df['Time'],output_df['Voltage'])
+axes[1].plot(output_df['Time'], output_df['Voltage'])
 axes[1].set_ylabel('Voltage')
-axes[2].plot(output_df['Time'],output_df['SoC'])
+axes[2].plot(output_df['Time'], output_df['SoC'])
 axes[2].set_ylabel('State of Charge')
 plt.tight_layout()
-plt.savefig(str('./figures/fig_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S")+'.png'))
+plt.savefig(str('./figures/fig_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S") + '.png'))
 plt.show()
-#save = input('Do you want to save the simulation? [y/n]')
-output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S")+'.csv'))
+# save = input('Do you want to save the simulation? [y/n]')
+output_df.to_csv(str('./simulations/sim_' + datetime.now().strftime("%d.%m.%Y_%H.%M.%S") + '.csv'))
