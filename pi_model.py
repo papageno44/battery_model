@@ -60,15 +60,11 @@ def time_step(server, current, sim, param):
     if soc >= 98 and current_sign:
         print('Max voltage voltage was reached!')
         server.data_bank.set_coils(2, [True])
-        if voltage >= 3.8:
-            voltage = 3.8
     else:
         server.data_bank.set_coils(2, [False])
     if soc <= 1 and (current_sign == False):
         print('Min voltage voltage was reached!')
         server.data_bank.set_coils(3, [True])
-        if voltage <= 2.9:
-            voltage = 2.9
     else:
         server.data_bank.set_coils(3, [False])
     write_current_variables(server, soc, voltage, time)
