@@ -2,7 +2,7 @@ import pybamm
 import time
 from pyModbusTCP.server import ModbusServer
 
-SEVER_IP='192.168.178.105'
+SERVER_IP='192.168.178.105'
 
 
 # Turn on the battery
