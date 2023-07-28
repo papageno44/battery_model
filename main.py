@@ -6,7 +6,7 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 
-SERVER_IP='192.168.178.105'
+SERVER_IP='10.152.14.210'
 
 
 def connect_to_battery(server_ip, port=12345):
