@@ -97,7 +97,7 @@ def forward_input_to_battery():
 
 
 def read_variables(client):
-    global RUN_SIM, CURRENT_LIST, VOLTAGE_LIST, SOC_LIST, TIME_LIST, PRESSED_KEY
+    global RUN_SIM, CURRENT_LIST, VOLTAGE_LIST, SOC_LIST, TIME_LIST, PRESSED_KEY, LAST_VOLTAGE
     time = client.read_holding_registers(3)[0]
     if time == 0:
         return
@@ -110,12 +110,15 @@ def read_variables(client):
     if max_voltage and current_sign == 1:
         print('Max voltage was reached! Changing current to 0')
         current = 0
+        voltage = LAST_VOLTAGE
         client.write_single_register(0, 0)
     min_voltage = client.read_coils(3)[0]
     if min_voltage and current_sign == 0:
         print('Min voltage was reached! Changing current to 0')
+        voltage = LAST_VOLTAGE
         client.write_single_register(0, 0)
     soc = client.read_holding_registers(2)[0] / 100
+    LAST_VOLTAGE = voltage
     print('current: ', current, '\nvoltage: ', voltage, '\nsoc: ', soc, '\ntime: ', time,
           '\n---------------')
     soc_0 = client.read_holding_registers(4)[0] / 100
